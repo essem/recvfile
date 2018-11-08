@@ -19,17 +19,14 @@ func main() {
 	bindAddr := fmt.Sprintf(":%d", *port)
 	fmt.Printf("Listen on %s\n", bindAddr)
 
-	writeFile := false
-	var file os.File
+	var file *os.File
 	if *outFile != "" {
-		file, err := os.Create(*outFile)
+		f, err := os.Create(*outFile)
 		if err != nil {
 			fmt.Printf("Failed to create file: %v\n", err)
 		}
 
-		defer file.Close()
-
-		writeFile = true
+		file = f
 
 		fmt.Printf("Write file to %s\n", *outFile)
 	}
@@ -91,7 +88,7 @@ func main() {
 			}
 		}
 
-		if writeFile {
+		if file != nil {
 			written := 0
 			for written < received {
 				n, err := file.Write(buf[written:received])
@@ -106,6 +103,10 @@ func main() {
 				written += n
 			}
 		}
+	}
+
+	if file != nil {
+		file.Close()
 	}
 
 	fmt.Printf("Total recv: %d\n", totalReceived)
