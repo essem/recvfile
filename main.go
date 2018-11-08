@@ -24,6 +24,7 @@ func main() {
 		f, err := os.Create(*outFile)
 		if err != nil {
 			fmt.Printf("Failed to create file: %v\n", err)
+			return
 		}
 
 		file = f
@@ -38,6 +39,7 @@ func main() {
 	ln, err := net.Listen("tcp", bindAddr)
 	if err != nil {
 		fmt.Printf("Failed to listen: %v\n", err)
+		return
 	}
 
 	defer ln.Close()
@@ -45,6 +47,7 @@ func main() {
 	conn, err := ln.Accept()
 	if err != nil {
 		fmt.Printf("Failed to accept: %v\n", err)
+		return
 	}
 
 	defer conn.Close()
@@ -60,10 +63,12 @@ func main() {
 			fmt.Println("Connection closed")
 			if received != 0 {
 				fmt.Printf("Unexpected: %d", received)
+				return
 			}
 			break
 		} else if err != nil {
 			fmt.Printf("Failed to recv: %v\n", err)
+			return
 		}
 
 		totalReceived += received
@@ -78,6 +83,7 @@ func main() {
 				n, err := conn.Write(buf[sent:received])
 				if err != nil {
 					fmt.Printf("Failed to send: %v\n", err)
+					return
 				}
 
 				if *verbose {
@@ -94,6 +100,7 @@ func main() {
 				n, err := file.Write(buf[written:received])
 				if err != nil {
 					fmt.Printf("Failed to write: %v\n", err)
+					return
 				}
 
 				if *verbose {
